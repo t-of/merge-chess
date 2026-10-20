@@ -70,10 +70,10 @@ function startGame(s) {
   render();
 }
 
-function top() { return states[states.length - 1]; }
+function curState() { return states[states.length - 1]; }
 
 function play(m) {
-  const st = top();
+  const st = curState();
   let note = MC.notation(st, T, m);
   const ns = MC.applyMove(st, T, m);
   states.push(ns); keys.push(MC.positionKey(ns, T)); lastMoves.push(m);
@@ -90,14 +90,14 @@ function play(m) {
 function undo() {
   if (states.length < 2) return;
   states.pop(); keys.pop(); notes.pop(); lastMoves.pop();
-  cur = MC.evaluate(top(), T, keys);
+  cur = MC.evaluate(curState(), T, keys);
   selected = null; pending = null;
   render();
 }
 
 function onCell(id) {
   if (cur.result) return;
-  const st = top();
+  const st = curState();
   if (pending) { pending = null; selected = null; render(); return; }
   if (selected != null) {
     const ms = cur.moves.filter((m) => m.from === selected && m.to === id);
@@ -111,7 +111,7 @@ function onCell(id) {
 }
 
 function render() {
-  const st = top();
+  const st = curState();
   const board = $('board');
   board.textContent = '';
   const lm = lastMoves[lastMoves.length - 1];
