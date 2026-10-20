@@ -145,8 +145,13 @@
               if (r2 === lastRow) for (const pr of 'QRBN') add({ from: id, to: c1, promo: pr, capture: false });
               else add({ from: id, to: c1, capture: false });
               if (r === startRow) {
-                const c2 = T.cellOf[(r + 2 * dir) * 8 + c];
-                if (c2 !== c1 && c2 !== id && !board[c2]) add({ from: id, to: c2, capture: false, dbl: true, mid: c1 });
+                // 2 歩目は 1 歩目のマスを抜けた先。縦長のマスなら 1 マスと数えて、その先まで進める
+                let r3 = r2 + dir;
+                while (inB(r3, c) && T.cellOf[r3 * 8 + c] === c1) r3 += dir;
+                if (inB(r3, c)) {
+                  const c2 = T.cellOf[r3 * 8 + c];
+                  if (c2 !== id && !board[c2]) add({ from: id, to: c2, capture: false, dbl: true, mid: c1 });
+                }
               }
             }
           }
