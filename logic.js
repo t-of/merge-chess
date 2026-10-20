@@ -46,7 +46,17 @@
     return { seed: seed == null ? null : seed, rects, cellOf, cells, cellIds };
   }
 
-  const SHAPES = [[2, 1], [1, 2], [2, 2], [3, 1], [1, 3]]; // [幅, 高さ]
+  // [幅, 高さ]。3〜6 段目に収まる長方形すべて（1×1 を除く）。
+  // 大きい形ほど盤を大きく変えるので、面積の 2 乗に反比例する重みで選ぶ
+  const SHAPES = [];
+  for (let w = 1; w <= 8; w++) for (let h = 1; h <= 4; h++) if (w * h > 1) SHAPES.push([w, h]);
+  const SHAPE_W = SHAPES.map(([w, h]) => 1 / (w * h) ** 2);
+  const SHAPE_SUM = SHAPE_W.reduce((x, y) => x + y, 0);
+  function pickShape(rnd) {
+    let x = rnd() * SHAPE_SUM;
+    for (let i = 0; i < SHAPES.length; i++) { x -= SHAPE_W[i]; if (x < 0) return SHAPES[i]; }
+    return SHAPES[SHAPES.length - 1];
+  }
 
   // 形は 3〜6 段目（段 2〜5）の内側。180° 回転した位置にも同じ形を置く。最大 5 組。
   function generateTerrain(seed) {
@@ -61,7 +71,7 @@
       return a;
     };
     for (let attempt = 0; attempt < 80 && groups < target; attempt++) {
-      const [w, h] = SHAPES[Math.floor(rnd() * SHAPES.length)];
+      const [w, h] = pickShape(rnd);
       const c0 = Math.floor(rnd() * (9 - w));
       const r0 = 2 + Math.floor(rnd() * (5 - h));
       const a = { r0, c0, r1: r0 + h - 1, c1: c0 + w - 1 };
