@@ -1,0 +1,109 @@
+:root {
+  --bg: #1b1f2a;
+  --fg: #eceef3;
+  --muted: #9aa0ab;
+  --accent: #ffd35c;
+}
+
+* { box-sizing: border-box; }
+
+/* Safari 26 の上下バーの色は html の背景から取られる。body と同じ色にしておく */
+html { background-color: var(--bg); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* 画面の端に置くものはセーフエリアの分だけ内側に。高さは 100vh ではなく 100dvh */
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+}
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bar__title { margin: 0; font-size: 18px; }
+.bar__actions { display: flex; gap: 8px; }
+.pill {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  touch-action: manipulation;   /* ダブルタップ拡大を止める */
+  user-select: none;
+  -webkit-user-select: none;
+}
+.credit { text-align: center; font-size: 12px; color: var(--muted); }
+.credit a { color: inherit; }
+
+/* 全画面のオーバーレイは opacity ではなく display: none で隠す */
+
+.status { min-height: 1.4em; font-size: 15px; font-weight: 600; text-align: center; }
+.status .chk { color: #ff7b6b; }
+.boardwrap { width: min(100%, 520px); container-type: inline-size; }
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  aspect-ratio: 1;
+  width: 100%;
+  border: 2px solid #0c0e13;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.cell {
+  position: relative;
+  border: 0; padding: 0; margin: 0;
+  display: grid; place-items: center;
+  background: #6a7896;
+  cursor: pointer;
+  min-width: 0; min-height: 0;
+}
+.cell.light { background: #c9d1e0; }
+.cell.merged { background: #3f8f87; box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.6); }
+.cell.last::before, .cell.chk::before {
+  content: ''; position: absolute; inset: 0; background: rgba(255, 211, 92, 0.5);
+}
+.cell.chk::before { background: radial-gradient(circle, rgba(255, 60, 40, 0.9), rgba(255, 60, 40, 0) 75%); }
+.cell.sel { outline: 3px solid var(--accent); outline-offset: -3px; z-index: 1; }
+.cell.tgt::after {
+  content: ''; position: absolute; width: 30%; max-width: 22px; aspect-ratio: 1; border-radius: 50%;
+  background: rgba(20, 24, 32, 0.45); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+.cell.tgt.cap::after {
+  width: 78%; max-width: none; background: none; box-shadow: none; border: 4px solid rgba(220, 50, 50, 0.8);
+}
+.cell.merged.tgt.cap::after { width: 72%; height: 72%; aspect-ratio: auto; border-radius: 12px; }
+.pc { position: relative; z-index: 2; font-size: 9.5cqw; line-height: 1; pointer-events: none; }
+.pc.w { color: #fbfbfd; text-shadow: 0 0 2px #000, 0 0 2px #000, 0 1px 2px #000; }
+.pc.b { color: #12141a; text-shadow: 0 0 2px #fff, 0 0 3px #fff; }
+.coord { position: absolute; font-size: 2.6cqw; color: rgba(20, 24, 32, 0.7); pointer-events: none; z-index: 1; }
+.coord.f { right: 3%; bottom: 1%; }
+.coord.r { left: 4%; top: 2%; }
+.promo { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.promo button { font-size: 28px; line-height: 1; padding: 4px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: #c9d1e0; cursor: pointer; }
+.result { width: min(100%, 520px); padding: 10px 14px; border-radius: 10px; background: rgba(255, 211, 92, 0.15); border: 1px solid var(--accent); text-align: center; font-weight: 600; }
+.controls, .seedrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; font-size: 13px; }
+.seedrow input { width: 6.5em; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: inherit; font: inherit; }
+.moves { width: min(100%, 520px); max-height: 7.5em; overflow-y: auto; font-size: 13px; line-height: 1.6; color: var(--muted); font-variant-numeric: tabular-nums; }
+.moves span.n { color: var(--fg); margin-right: 2px; }
+.moves span.m { margin-right: 8px; white-space: nowrap; }
